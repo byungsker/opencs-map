@@ -1,4 +1,5 @@
 import { courses } from "@/data/courses";
+import { courseLessons } from "@/data/lessons";
 import type { Course, CourseFilters } from "@/types/course";
 import type { Roadmap } from "@/types/roadmap";
 
@@ -43,4 +44,8 @@ export function getUniqueTopics(source: Course[] = courses): string[] {
 
 export function getUniqueInstitutions(source: Course[] = courses): string[] {
   return Array.from(new Set(source.map((course) => course.institution))).sort();
+}
+
+export function getCourseLessons(slug: string) {
+  return courseLessons[slug] ?? [];
 }

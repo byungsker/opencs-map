@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProgressButton } from "@/components/progress-button";
+import { LessonPlayer } from "@/components/lesson-player";
 import { courses } from "@/data/courses";
 import { roadmaps } from "@/data/roadmaps";
-import { getCourseBySlug } from "@/lib/catalog";
+import { getCourseBySlug, getCourseLessons } from "@/lib/catalog";
 
 export function generateStaticParams() {
   return courses.map((course) => ({ slug: course.slug }));
@@ -19,6 +20,7 @@ export default function CourseDetailPage({ params }: { params: { slug: string } 
   if (!course) notFound();
 
   const includedRoadmaps = roadmaps.filter((roadmap) => roadmap.steps.some((step) => step.courseSlug === course.slug));
+  const lessons = getCourseLessons(course.slug);
 
   return (
     <main className="mx-auto max-w-5xl px-5 py-10">
@@ -42,6 +44,8 @@ export default function CourseDetailPage({ params }: { params: { slug: string } 
           <ProgressButton slug={course.slug} status="done" />
         </div>
       </section>
+
+      {lessons.length > 0 ? <LessonPlayer lessons={lessons} /> : null}
 
       <section className="mt-6 grid gap-4 md:grid-cols-3">
         <Info title="추천 대상" items={course.recommendedFor} />
