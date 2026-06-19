@@ -14,6 +14,11 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
         <div>
           <p className="text-sm font-bold text-blue-700">바로 보기</p>
           <h2 className="mt-1 text-2xl font-black text-slate-950">{selected.title}</h2>
+          {selected.captionLabel ? (
+            <p className="mt-2 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+              {selected.captionLabel}
+            </p>
+          ) : null}
         </div>
         <a href={selected.cs50Url ?? selected.sourceUrl} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-700">
           강의 자료 열기 →
