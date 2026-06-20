@@ -33,11 +33,10 @@ describe("course lessons", () => {
       ]),
     );
     expect(lessons[0].captions.length).toBeGreaterThanOrEqual(200);
-    expect(lessons[1].captions).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ textKo: expect.stringContaining("C") }),
-      ]),
-    );
+    expect(lessons[1]).toMatchObject({
+      captionLabel: "정렬 자막 준비 중",
+      captions: [],
+    });
     expect(lessons[10].title).toBe("Week 10: Cybersecurity");
   });
 });

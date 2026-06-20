@@ -99,6 +99,7 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
   if (!selected) return null;
 
   const activeCaption = findActiveCaption(selected.captions, currentTime);
+  const hasTimedCaptions = selected.captions.length > 0;
 
   return (
     <section className="mt-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
@@ -139,22 +140,30 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
 
       <div className="mt-4 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-700">Custom Korean captions</p>
-        <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
-          유튜브 자동 자막에 기대지 않고, OpenCS Map 데이터에 들어있는 자체 한글 학습 자막을 영상 위에 올립니다.
-        </p>
-        <ol className="mt-3 space-y-2 text-sm text-slate-700">
-          {selected.captions.map((caption) => {
-            return (
-              <li
-                key={`${selected.videoId}-${caption.startSeconds}`}
-                className={activeCaption && caption.startSeconds === activeCaption.startSeconds ? "rounded-xl bg-white px-3 py-2 font-bold text-emerald-800 shadow-sm" : "px-3 py-2"}
-              >
-                <span className="mr-2 font-mono text-xs text-slate-500">{formatTime(caption.startSeconds)}</span>
-                {caption.textKo}
-              </li>
-            );
-          })}
-        </ol>
+        {hasTimedCaptions ? (
+          <>
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+              유튜브 자동 자막에 기대지 않고, 실제 강의 transcript timestamp에 맞춘 자체 한글 자막을 영상 위에 올립니다.
+            </p>
+            <ol className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-2 text-sm text-slate-700">
+              {selected.captions.map((caption) => {
+                return (
+                  <li
+                    key={`${selected.videoId}-${caption.startSeconds}`}
+                    className={activeCaption && caption.startSeconds === activeCaption.startSeconds ? "rounded-xl bg-white px-3 py-2 font-bold text-emerald-800 shadow-sm" : "px-3 py-2"}
+                  >
+                    <span className="mr-2 font-mono text-xs text-slate-500">{formatTime(caption.startSeconds)}</span>
+                    {caption.textKo}
+                  </li>
+                );
+              })}
+            </ol>
+          </>
+        ) : (
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+            이 강의는 아직 timestamp에 맞춘 자체 한글 자막을 생성하지 않았습니다. 맞지 않는 임시 자막은 숨겼습니다.
+          </p>
+        )}
       </div>
 
       <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
