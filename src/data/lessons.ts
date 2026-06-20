@@ -1,7 +1,10 @@
+import { cs50Week0Captions } from "./cs50-week0-captions";
+
 export type LessonCaption = {
   startSeconds: number;
   endSeconds: number;
   textKo: string;
+  textEn?: string;
 };
 
 export type CourseLesson = {
@@ -36,12 +39,7 @@ const cs50Lessons: CourseLesson[] = [
     captionLanguage: "ko",
     captionLabel: "자체 한글 자막",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/0/",
-    captions: makeCaptions([
-      "스크래치로 프로그래밍의 기본 재료인 명령, 반복, 조건을 눈으로 확인합니다.",
-      "문제를 작게 나누고 블록을 조합하면서 알고리즘의 감각을 먼저 익힙니다.",
-      "이벤트, 변수, 함수는 이후 C와 Python에서도 계속 반복해서 나오는 핵심 개념입니다.",
-      "완벽한 문법보다 입력을 받아 처리하고 결과를 내는 흐름을 이해하는 데 집중하면 됩니다.",
-    ]),
+    captions: cs50Week0Captions,
   },
   {
     order: 2,

@@ -21,13 +21,18 @@ describe("course lessons", () => {
     expect(lessons[0].captions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          startSeconds: expect.any(Number),
-          endSeconds: expect.any(Number),
-          textKo: expect.stringContaining("스크래치"),
+          startSeconds: 300,
+          endSeconds: 312,
+          textEn: expect.stringContaining("Google Docs"),
+        }),
+        expect.objectContaining({
+          startSeconds: 312,
+          endSeconds: 324,
+          textKo: expect.stringContaining("VS 코드"),
         }),
       ]),
     );
-    expect(lessons[0].captions.length).toBeGreaterThanOrEqual(4);
+    expect(lessons[0].captions.length).toBeGreaterThanOrEqual(200);
     expect(lessons[1].captions).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ textKo: expect.stringContaining("C") }),

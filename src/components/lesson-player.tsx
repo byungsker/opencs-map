@@ -50,7 +50,7 @@ function loadYouTubeApi() {
 }
 
 function findActiveCaption(captions: LessonCaption[], currentTime: number) {
-  return captions.find((caption) => currentTime >= caption.startSeconds && currentTime < caption.endSeconds) ?? captions[0];
+  return captions.find((caption) => currentTime >= caption.startSeconds && currentTime < caption.endSeconds);
 }
 
 function formatTime(totalSeconds: number) {
@@ -126,12 +126,14 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
-          <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-2xl bg-slate-950/85 px-4 py-3 text-center text-sm font-bold leading-relaxed text-white shadow-lg backdrop-blur sm:text-base">
-            <span className="mr-2 rounded-full bg-emerald-400/20 px-2 py-1 text-[11px] text-emerald-100">
-              우리 서비스 자막 {formatTime(activeCaption.startSeconds)}
-            </span>
-            {activeCaption.textKo}
-          </div>
+          {activeCaption ? (
+            <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-2xl bg-slate-950/85 px-4 py-3 text-center text-sm font-bold leading-relaxed text-white shadow-lg backdrop-blur sm:text-base">
+              <span className="mr-2 rounded-full bg-emerald-400/20 px-2 py-1 text-[11px] text-emerald-100">
+                우리 서비스 자막 {formatTime(activeCaption.startSeconds)}
+              </span>
+              {activeCaption.textKo}
+            </div>
+          ) : null}
         </div>
       </div>
 
@@ -142,11 +144,10 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
         </p>
         <ol className="mt-3 space-y-2 text-sm text-slate-700">
           {selected.captions.map((caption) => {
-            const active = caption === activeCaption;
             return (
               <li
                 key={`${selected.videoId}-${caption.startSeconds}`}
-                className={active ? "rounded-xl bg-white px-3 py-2 font-bold text-emerald-800 shadow-sm" : "px-3 py-2"}
+                className={activeCaption && caption.startSeconds === activeCaption.startSeconds ? "rounded-xl bg-white px-3 py-2 font-bold text-emerald-800 shadow-sm" : "px-3 py-2"}
               >
                 <span className="mr-2 font-mono text-xs text-slate-500">{formatTime(caption.startSeconds)}</span>
                 {caption.textKo}
