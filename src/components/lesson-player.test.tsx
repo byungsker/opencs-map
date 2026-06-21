@@ -1,39 +1,27 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { LessonPlayer } from "@/components/lesson-player";
 import { getCourseLessons } from "@/lib/catalog";
 
-const captions = [
-  {
-    startSeconds: 0,
-    endSeconds: 15,
-    textKo: "컴퓨터과학을 배우기 위한 첫 번째 학습 자막 초안입니다.",
-    textEn: "This is the first learning caption draft.",
-  },
-];
-
 describe("LessonPlayer", () => {
-  beforeEach(() => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => captions,
-    }));
-  });
-
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("presents machine-generated captions as a reviewed learning-layer draft, not guaranteed synced subtitles", async () => {
+  it("keeps v1 focused on watching lectures and course progress while moving Korean captions to v2", () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
     render(<LessonPlayer lessons={getCourseLessons("harvard-cs50x")} />);
 
-    await waitFor(() => expect(screen.getByText(captions[0].textKo)).toBeInTheDocument());
-
-    expect(screen.getByText("학습 자막 초안")).toBeInTheDocument();
-    expect(screen.getByText(/YouTube transcript timestamp를 기준으로 만든 한국어 학습 자막 초안/)).toBeInTheDocument();
-    expect(screen.getByText(/자동 생성·기계번역·광고 구간 때문에 일부 싱크와 번역이 다를 수 있습니다/)).toBeInTheDocument();
-    expect(screen.getByText(/전체 자막 보장보다 챕터·요약·용어·퀴즈 중심의 학습 레이어를 우선합니다/)).toBeInTheDocument();
-    expect(screen.queryByText(/실제 강의 transcript timestamp에 맞춘 자체 한글 자막/)).not.toBeInTheDocument();
+    expect(screen.getByText("강의 시청" )).toBeInTheDocument();
+    expect(screen.getByText(/V1은 해외 유명 대학 강의를 한곳에서 고르고, 저장·학습 중·완료 상태로 관리하며 시청하는 데 집중합니다/)).toBeInTheDocument();
+    expect(screen.getByText(/한글 자막과 transcript 기반 학습 레이어는 V2 계획으로 분리했습니다/)).toBeInTheDocument();
+    expect(screen.getByText("학습관리")).toBeInTheDocument();
+    expect(screen.getByText("진행 상태는 상단의 저장·학습 중·완료 버튼으로 관리하세요.")).toBeInTheDocument();
+    expect(screen.queryByText(/Custom Korean captions/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/학습 자막 초안/)).not.toBeInTheDocument();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

@@ -13,7 +13,7 @@ export default function Home() {
         <div>
           <p className="mb-4 inline-flex rounded-full bg-blue-100 px-4 py-2 text-sm font-bold text-blue-700">OpenCS Map</p>
           <h1 className="text-4xl font-black tracking-tight text-slate-950 md:text-6xl">해외 무료 CS 강의, 어디서부터 들을지 모르겠다면</h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700">Harvard, MIT, Stanford, Berkeley, CMU의 무료 CS 강의를 한국어 학습자 기준으로 정리했습니다. 목표별 로드맵을 고르고, 내 속도로 따라가세요.</p>
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-700">Harvard, MIT, Stanford, Berkeley, CMU의 무료 CS 강의를 한곳에 모았습니다. 기존 강의 플랫폼처럼 저장·학습 중·완료 상태로 관리하면서 원문 강의를 바로 시청하세요.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/roadmaps" className="rounded-full bg-blue-600 px-6 py-3 font-bold text-white shadow-lg shadow-blue-200">로드맵 보기</Link>
             <Link href="/courses" className="rounded-full border border-slate-300 bg-white px-6 py-3 font-bold text-slate-800">강의 탐색하기</Link>

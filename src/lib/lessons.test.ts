@@ -14,27 +14,14 @@ describe("course lessons", () => {
     expect(lessons[0].embedUrl).toBe(
       "https://www.youtube.com/embed/UuIEbpQms8o?enablejsapi=1&rel=0",
     );
-    expect(lessons[0]).toMatchObject({
-      captionLanguage: "ko",
-      captionLabel: "학습 자막 초안",
-      captionSource: "youtube-transcript-api",
-      captionReviewStatus: "machine",
-      syncRisk: "youtube-ads-and-auto-transcript",
-      captionsUrl: "/captions/harvard-cs50x/week-0.ko.json",
-    });
-    expect(lessons[0]).not.toHaveProperty("captions");
-    expect(lessons[1]).toMatchObject({
-      captionLabel: "학습 자막 초안",
-      captionSource: "youtube-transcript-api",
-      captionReviewStatus: "machine",
-      syncRisk: "youtube-ads-and-auto-transcript",
-      captionsUrl: "/captions/harvard-cs50x/week-1.ko.json",
-    });
-    expect(lessons[1]).not.toHaveProperty("captions");
-    expect(lessons[2]).toMatchObject({
-      captionLabel: "학습 레이어 준비 중",
-    });
-    expect(lessons[2]).not.toHaveProperty("captionsUrl");
+    for (const lesson of lessons) {
+      expect(lesson).not.toHaveProperty("captions");
+      expect(lesson).not.toHaveProperty("captionsUrl");
+      expect(lesson).not.toHaveProperty("captionLabel");
+      expect(lesson).not.toHaveProperty("captionSource");
+      expect(lesson).not.toHaveProperty("captionReviewStatus");
+      expect(lesson).not.toHaveProperty("syncRisk");
+    }
     expect(lessons[10].title).toBe("Week 10: Cybersecurity");
   });
 });

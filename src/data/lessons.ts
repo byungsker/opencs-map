@@ -1,10 +1,3 @@
-export type LessonCaption = {
-  startSeconds: number;
-  endSeconds: number;
-  textKo: string;
-  textEn?: string;
-};
-
 export type CourseLesson = {
   order: number;
   title: string;
@@ -12,18 +5,10 @@ export type CourseLesson = {
   embedUrl: string;
   sourceUrl: string;
   cs50Url?: string;
-  captionLanguage?: "ko";
-  captionLabel?: string;
-  captionSource?: "youtube-transcript-api";
-  captionReviewStatus?: "machine" | "reviewed";
-  syncRisk?: "youtube-ads-and-auto-transcript";
-  captionsUrl?: string;
 };
 
 const embed = (videoId: string) => `https://www.youtube.com/embed/${videoId}?enablejsapi=1&rel=0`;
 const source = (videoId: string) => `https://youtu.be/${videoId}`;
-const publicAsset = (path: string) => `${process.env.GITHUB_PAGES === "true" ? "/opencs-map" : ""}${path}`;
-
 const cs50Lessons: CourseLesson[] = [
   {
     order: 1,
@@ -31,13 +16,7 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "UuIEbpQms8o",
     embedUrl: embed("UuIEbpQms8o"),
     sourceUrl: source("UuIEbpQms8o"),
-    captionLanguage: "ko",
-    captionLabel: "학습 자막 초안",
-    captionSource: "youtube-transcript-api",
-    captionReviewStatus: "machine",
-    syncRisk: "youtube-ads-and-auto-transcript",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/0/",
-    captionsUrl: publicAsset("/captions/harvard-cs50x/week-0.ko.json"),
   },
   {
     order: 2,
@@ -45,13 +24,7 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "SlqjA04_dpk",
     embedUrl: embed("SlqjA04_dpk"),
     sourceUrl: source("SlqjA04_dpk"),
-    captionLanguage: "ko",
-    captionLabel: "학습 자막 초안",
-    captionSource: "youtube-transcript-api",
-    captionReviewStatus: "machine",
-    syncRisk: "youtube-ads-and-auto-transcript",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/1/",
-    captionsUrl: publicAsset("/captions/harvard-cs50x/week-1.ko.json"),
   },
   {
     order: 3,
@@ -59,8 +32,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "h5Gc1n8ZuU8",
     embedUrl: embed("h5Gc1n8ZuU8"),
     sourceUrl: source("h5Gc1n8ZuU8"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/2/",
   },
   {
@@ -69,8 +40,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "6Svu_ae5ebk",
     embedUrl: embed("6Svu_ae5ebk"),
     sourceUrl: source("6Svu_ae5ebk"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/3/",
   },
   {
@@ -79,8 +48,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "db0H0U13YsA",
     embedUrl: embed("db0H0U13YsA"),
     sourceUrl: source("db0H0U13YsA"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/4/",
   },
   {
@@ -89,8 +56,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "PmAI76OGE_E",
     embedUrl: embed("PmAI76OGE_E"),
     sourceUrl: source("PmAI76OGE_E"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/5/",
   },
   {
@@ -99,8 +64,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "Rl0ludWTLxs",
     embedUrl: embed("Rl0ludWTLxs"),
     sourceUrl: source("Rl0ludWTLxs"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/6/",
   },
   {
@@ -109,8 +72,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "oqRU2So6Z2Y",
     embedUrl: embed("oqRU2So6Z2Y"),
     sourceUrl: source("oqRU2So6Z2Y"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/7/",
   },
   {
@@ -119,8 +80,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "yYst7puZXjw",
     embedUrl: embed("yYst7puZXjw"),
     sourceUrl: source("yYst7puZXjw"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/8/",
   },
   {
@@ -129,8 +88,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "am7POvSZ4GE",
     embedUrl: embed("am7POvSZ4GE"),
     sourceUrl: source("am7POvSZ4GE"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/9/",
   },
   {
@@ -139,8 +96,6 @@ const cs50Lessons: CourseLesson[] = [
     videoId: "ApQTgFkf8TU",
     embedUrl: embed("ApQTgFkf8TU"),
     sourceUrl: source("ApQTgFkf8TU"),
-    captionLanguage: "ko",
-    captionLabel: "학습 레이어 준비 중",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/10/",
   },
 ];
@@ -148,3 +103,4 @@ const cs50Lessons: CourseLesson[] = [
 export const courseLessons: Record<string, CourseLesson[]> = {
   "harvard-cs50x": cs50Lessons,
 };
+
