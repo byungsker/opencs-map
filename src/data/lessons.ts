@@ -1,4 +1,5 @@
 import { cs50Week0Captions } from "./cs50-week0-captions";
+import { cs50Week1Captions } from "./cs50-week1-captions";
 
 export type LessonCaption = {
   startSeconds: number;
@@ -48,9 +49,9 @@ const cs50Lessons: CourseLesson[] = [
     embedUrl: embed("SlqjA04_dpk"),
     sourceUrl: source("SlqjA04_dpk"),
     captionLanguage: "ko",
-    captionLabel: "정렬 자막 준비 중",
+    captionLabel: "자체 한글 자막",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/1/",
-    captions: [],
+    captions: cs50Week1Captions,
   },
   {
     order: 3,
