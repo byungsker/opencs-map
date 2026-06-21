@@ -62,7 +62,41 @@ function formatTime(totalSeconds: number) {
 export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
   const [selected, setSelected] = useState(lessons[0]);
   const [currentTime, setCurrentTime] = useState(0);
+  const [captions, setCaptions] = useState<LessonCaption[]>([]);
+  const [captionStatus, setCaptionStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  useEffect(() => {
+    if (!selected?.captionsUrl) {
+      setCaptions([]);
+      setCaptionStatus("idle");
+      return;
+    }
+
+    let cancelled = false;
+    setCaptions([]);
+    setCaptionStatus("loading");
+
+    fetch(selected.captionsUrl)
+      .then((response) => {
+        if (!response.ok) throw new Error(`Failed to load captions: ${response.status}`);
+        return response.json() as Promise<LessonCaption[]>;
+      })
+      .then((loadedCaptions) => {
+        if (cancelled) return;
+        setCaptions(loadedCaptions);
+        setCaptionStatus("ready");
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCaptions([]);
+        setCaptionStatus("error");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selected]);
 
   useEffect(() => {
     if (!selected || !iframeRef.current) return;
@@ -98,8 +132,8 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
 
   if (!selected) return null;
 
-  const activeCaption = findActiveCaption(selected.captions, currentTime);
-  const hasTimedCaptions = selected.captions.length > 0;
+  const activeCaption = findActiveCaption(captions, currentTime);
+  const hasTimedCaptions = captions.length > 0;
 
   return (
     <section className="mt-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
@@ -146,7 +180,7 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
               유튜브 자동 자막에 기대지 않고, 실제 강의 transcript timestamp에 맞춘 자체 한글 자막을 영상 위에 올립니다.
             </p>
             <ol className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-2 text-sm text-slate-700">
-              {selected.captions.map((caption) => {
+              {captions.map((caption) => {
                 return (
                   <li
                     key={`${selected.videoId}-${caption.startSeconds}`}
@@ -159,9 +193,17 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
               })}
             </ol>
           </>
+        ) : captionStatus === "loading" ? (
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+            자체 한글 자막을 불러오는 중입니다.
+          </p>
+        ) : captionStatus === "error" ? (
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+            자막 파일을 불러오지 못했습니다. 영상은 그대로 볼 수 있고, 학습 레이어는 다시 시도해 주세요.
+          </p>
         ) : (
           <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
-            이 강의는 아직 timestamp에 맞춘 자체 한글 자막을 생성하지 않았습니다. 맞지 않는 임시 자막은 숨겼습니다.
+            이 강의는 아직 전체 자막을 제공하지 않습니다. 앞으로는 자막을 일일이 코드에 넣지 않고, 검수 가능한 챕터·요약·용어 학습 레이어로 확장합니다.
           </p>
         )}
       </div>

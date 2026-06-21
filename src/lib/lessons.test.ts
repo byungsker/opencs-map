@@ -17,39 +17,18 @@ describe("course lessons", () => {
     expect(lessons[0]).toMatchObject({
       captionLanguage: "ko",
       captionLabel: "자체 한글 자막",
+      captionsUrl: "/captions/harvard-cs50x/week-0.ko.json",
     });
-    expect(lessons[0].captions).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          startSeconds: 300,
-          endSeconds: 312,
-          textEn: expect.stringContaining("Google Docs"),
-        }),
-        expect.objectContaining({
-          startSeconds: 312,
-          endSeconds: 324,
-          textKo: expect.stringContaining("VS 코드"),
-        }),
-      ]),
-    );
-    expect(lessons[0].captions.length).toBeGreaterThanOrEqual(200);
+    expect(lessons[0]).not.toHaveProperty("captions");
     expect(lessons[1]).toMatchObject({
       captionLabel: "자체 한글 자막",
+      captionsUrl: "/captions/harvard-cs50x/week-1.ko.json",
     });
-    expect(lessons[1].captions).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          startSeconds: 30,
-          textKo: expect.any(String),
-          textEn: expect.any(String),
-        }),
-        expect.objectContaining({
-          startSeconds: 300,
-          textEn: expect.any(String),
-        }),
-      ]),
-    );
-    expect(lessons[1].captions.length).toBeGreaterThanOrEqual(200);
+    expect(lessons[1]).not.toHaveProperty("captions");
+    expect(lessons[2]).toMatchObject({
+      captionLabel: "학습 레이어 준비 중",
+    });
+    expect(lessons[2]).not.toHaveProperty("captionsUrl");
     expect(lessons[10].title).toBe("Week 10: Cybersecurity");
   });
 });
