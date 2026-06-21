@@ -14,6 +14,9 @@ export type CourseLesson = {
   cs50Url?: string;
   captionLanguage?: "ko";
   captionLabel?: string;
+  captionSource?: "youtube-transcript-api";
+  captionReviewStatus?: "machine" | "reviewed";
+  syncRisk?: "youtube-ads-and-auto-transcript";
   captionsUrl?: string;
 };
 
@@ -29,7 +32,10 @@ const cs50Lessons: CourseLesson[] = [
     embedUrl: embed("UuIEbpQms8o"),
     sourceUrl: source("UuIEbpQms8o"),
     captionLanguage: "ko",
-    captionLabel: "자체 한글 자막",
+    captionLabel: "학습 자막 초안",
+    captionSource: "youtube-transcript-api",
+    captionReviewStatus: "machine",
+    syncRisk: "youtube-ads-and-auto-transcript",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/0/",
     captionsUrl: publicAsset("/captions/harvard-cs50x/week-0.ko.json"),
   },
@@ -40,7 +46,10 @@ const cs50Lessons: CourseLesson[] = [
     embedUrl: embed("SlqjA04_dpk"),
     sourceUrl: source("SlqjA04_dpk"),
     captionLanguage: "ko",
-    captionLabel: "자체 한글 자막",
+    captionLabel: "학습 자막 초안",
+    captionSource: "youtube-transcript-api",
+    captionReviewStatus: "machine",
+    syncRisk: "youtube-ads-and-auto-transcript",
     cs50Url: "https://cs50.harvard.edu/x/2026/weeks/1/",
     captionsUrl: publicAsset("/captions/harvard-cs50x/week-1.ko.json"),
   },

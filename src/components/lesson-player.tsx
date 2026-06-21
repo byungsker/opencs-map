@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { CourseLesson, LessonCaption } from "@/data/lessons";
 
 type YouTubePlayer = {
@@ -133,6 +133,7 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
   if (!selected) return null;
 
   const activeCaption = findActiveCaption(captions, currentTime);
+  const overlayCaption = currentTime > 1 ? activeCaption : undefined;
   const hasTimedCaptions = captions.length > 0;
 
   return (
@@ -161,12 +162,12 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
-          {activeCaption ? (
+          {overlayCaption ? (
             <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-2xl bg-slate-950/85 px-4 py-3 text-center text-sm font-bold leading-relaxed text-white shadow-lg backdrop-blur sm:text-base">
               <span className="mr-2 rounded-full bg-emerald-400/20 px-2 py-1 text-[11px] text-emerald-100">
-                우리 서비스 자막 {formatTime(activeCaption.startSeconds)}
+                학습 자막 초안 {formatTime(overlayCaption.startSeconds)}
               </span>
-              {activeCaption.textKo}
+              {overlayCaption.textKo}
             </div>
           ) : null}
         </div>
@@ -177,7 +178,21 @@ export function LessonPlayer({ lessons }: { lessons: CourseLesson[] }) {
         {hasTimedCaptions ? (
           <>
             <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
-              유튜브 자동 자막에 기대지 않고, 실제 강의 transcript timestamp에 맞춘 자체 한글 자막을 영상 위에 올립니다.
+              YouTube transcript timestamp를 기준으로 만든 한국어 학습 자막 초안입니다. 자동 생성·기계번역·광고 구간 때문에 일부 싱크와 번역이 다를 수 있습니다.
+            </p>
+            <div className="mt-3 grid gap-2 text-xs font-bold text-slate-700 sm:grid-cols-3">
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2">
+                검수 상태: 기계 생성 초안
+              </div>
+              <div className="rounded-2xl border border-sky-200 bg-sky-50 px-3 py-2">
+                기준: transcript timestamp
+              </div>
+              <div className="rounded-2xl border border-violet-200 bg-violet-50 px-3 py-2">
+                목표: 학습 레이어 우선
+              </div>
+            </div>
+            <p className="mt-3 text-sm font-semibold leading-6 text-slate-800">
+              전체 자막 보장보다 챕터·요약·용어·퀴즈 중심의 학습 레이어를 우선합니다.
             </p>
             <ol className="mt-3 max-h-96 space-y-2 overflow-y-auto pr-2 text-sm text-slate-700">
               {captions.map((caption) => {

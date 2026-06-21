@@ -16,12 +16,18 @@ describe("course lessons", () => {
     );
     expect(lessons[0]).toMatchObject({
       captionLanguage: "ko",
-      captionLabel: "자체 한글 자막",
+      captionLabel: "학습 자막 초안",
+      captionSource: "youtube-transcript-api",
+      captionReviewStatus: "machine",
+      syncRisk: "youtube-ads-and-auto-transcript",
       captionsUrl: "/captions/harvard-cs50x/week-0.ko.json",
     });
     expect(lessons[0]).not.toHaveProperty("captions");
     expect(lessons[1]).toMatchObject({
-      captionLabel: "자체 한글 자막",
+      captionLabel: "학습 자막 초안",
+      captionSource: "youtube-transcript-api",
+      captionReviewStatus: "machine",
+      syncRisk: "youtube-ads-and-auto-transcript",
       captionsUrl: "/captions/harvard-cs50x/week-1.ko.json",
     });
     expect(lessons[1]).not.toHaveProperty("captions");
