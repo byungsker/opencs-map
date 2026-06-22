@@ -45,7 +45,7 @@ export default function CourseDetailPage({ params }: { params: { slug: string } 
         </div>
       </section>
 
-      {lessons.length > 0 ? <LessonPlayer lessons={lessons} /> : null}
+      {lessons.length > 0 ? <LessonPlayer lessons={lessons} courseSlug={course.slug} /> : null}
 
       <section className="mt-6 grid gap-4 md:grid-cols-3">
         <Info title="추천 대상" items={course.recommendedFor} />
