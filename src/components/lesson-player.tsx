@@ -6,6 +6,7 @@ import { getLessonStudyGuide } from "@/lib/lesson-study-guide";
 import {
   getLastWatchedLesson,
   getLessonNote,
+  getLessonProgressId,
   getStoredLessonProgress,
   setLastWatchedLesson,
   setLessonCompleted,
@@ -26,12 +27,12 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selected, setSelected] = useState(initialLesson);
   const [progress, setProgress] = useState(() => getStoredLessonProgress(courseSlug));
-  const [note, setNote] = useState(() => (initialLesson ? getLessonNote(courseSlug, initialLesson.videoId) : ""));
+  const [note, setNote] = useState(() => (initialLesson ? getLessonNote(courseSlug, getLessonProgressId(courseSlug, initialLesson)) : ""));
   const [completionPrompt, setCompletionPrompt] = useState<"manual" | "watched-until-end" | null>(null);
 
   const progressSummary = useMemo(() => {
     const completed = new Set(progress.completedLessonIds);
-    const completedCount = lessons.filter((lesson) => completed.has(lesson.videoId)).length;
+    const completedCount = lessons.filter((lesson) => completed.has(getLessonProgressId(courseSlug, lesson))).length;
     const totalCount = lessons.length;
 
     return {
@@ -39,7 +40,7 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
       totalCount,
       percentage: totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100),
     };
-  }, [lessons, progress.completedLessonIds]);
+  }, [courseSlug, lessons, progress.completedLessonIds]);
   const completedLessonIds = useMemo(() => new Set(progress.completedLessonIds), [progress.completedLessonIds]);
   const watchedUntilEndLessonIds = useMemo(
     () => new Set(progress.watchedUntilEndLessonIds),
@@ -52,9 +53,10 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
 
       const data = typeof event.data === "string" ? safeParseYouTubeMessage(event.data) : event.data;
       if (data?.event !== "onStateChange" || data.info !== 0) return;
-      if (completedLessonIds.has(selected.videoId)) return;
+      const selectedId = getLessonProgressId(courseSlug, selected);
+      if (completedLessonIds.has(selectedId)) return;
 
-      setLessonWatchedUntilEnd(courseSlug, selected.videoId, true);
+      setLessonWatchedUntilEnd(courseSlug, selectedId, true);
       setProgress(getStoredLessonProgress(courseSlug));
       setCompletionPrompt("watched-until-end");
     };
@@ -75,17 +77,18 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
   const selectLesson = (lesson: CourseLesson) => {
     setSelected(lesson);
     setCompletionPrompt(null);
-    setLastWatchedLesson(courseSlug, lesson.videoId);
+    setLastWatchedLesson(courseSlug, getLessonProgressId(courseSlug, lesson));
     setProgress(getStoredLessonProgress(courseSlug));
-    setNote(getLessonNote(courseSlug, lesson.videoId));
+    setNote(getLessonNote(courseSlug, getLessonProgressId(courseSlug, lesson)));
   };
 
-  const selectedIndex = lessons.findIndex((lesson) => lesson.videoId === selected.videoId);
+  const selectedIndex = lessons.findIndex((lesson) => getLessonProgressId(courseSlug, lesson) === getLessonProgressId(courseSlug, selected));
   const nextLesson = selectedIndex >= 0 ? lessons[selectedIndex + 1] : undefined;
 
   const openCompletionPrompt = () => {
-    if (completedLessonIds.has(selected.videoId)) {
-      setLessonCompleted(courseSlug, selected.videoId, false);
+    const selectedId = getLessonProgressId(courseSlug, selected);
+    if (completedLessonIds.has(selectedId)) {
+      setLessonCompleted(courseSlug, selectedId, false);
       setProgress(getStoredLessonProgress(courseSlug));
       return;
     }
@@ -94,7 +97,7 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
   };
 
   const completeSelectedLesson = (moveNext: boolean) => {
-    setLessonCompleted(courseSlug, selected.videoId, true);
+    setLessonCompleted(courseSlug, getLessonProgressId(courseSlug, selected), true);
     setProgress(getStoredLessonProgress(courseSlug));
     setCompletionPrompt(null);
 
@@ -109,12 +112,13 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
 
   const updateNote = (value: string) => {
     setNote(value);
-    setLessonNote(courseSlug, selected.videoId, value);
+    setLessonNote(courseSlug, getLessonProgressId(courseSlug, selected), value);
     setProgress(getStoredLessonProgress(courseSlug));
   };
 
-  const selectedCompleted = completedLessonIds.has(selected.videoId);
-  const selectedStudyGuide = getLessonStudyGuide(selected.videoId);
+  const selectedId = getLessonProgressId(courseSlug, selected);
+  const selectedCompleted = completedLessonIds.has(selectedId);
+  const selectedStudyGuide = selected.videoId ? getLessonStudyGuide(selected.videoId) : null;
 
   return (
     <section className="mt-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
@@ -134,16 +138,34 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
       <div className="mt-5 grid gap-4 lg:grid-cols-[1.7fr_1fr]">
         <div className="overflow-hidden rounded-3xl bg-slate-950 shadow-inner">
           <div className="relative aspect-video">
-            <iframe
-              ref={iframeRef}
-              key={selected.videoId}
-              className="h-full w-full"
-              src={selected.embedUrl}
-              title={selected.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              onLoad={registerYouTubeStateListener}
-            />
+            {selected.embedUrl ? (
+              <iframe
+                ref={iframeRef}
+                key={selectedId}
+                className="h-full w-full"
+                src={selected.embedUrl}
+                title={selected.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                onLoad={registerYouTubeStateListener}
+              />
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-4 bg-slate-950 p-8 text-center text-white">
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-blue-200">공식 강의 자료</p>
+                <h3 className="text-2xl font-black">{selected.title}</h3>
+                <p className="max-w-xl text-sm font-semibold leading-6 text-slate-300">
+                  이 강의는 공식 페이지/슬라이드/강의 자료 링크로 제공돼요. 아래 버튼으로 원문 강의를 열고, 완료 상태와 노트는 OpenCS Map에서 계속 관리할 수 있어요.
+                </p>
+                <a
+                  href={selected.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-2xl bg-white px-5 py-3 text-sm font-black text-slate-950 shadow-sm"
+                >
+                  공식 강의 열기 →
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
@@ -203,12 +225,13 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
       <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-2 sm:grid-cols-2">
           {lessons.map((lesson) => {
-            const active = lesson.videoId === selected.videoId;
-            const completed = completedLessonIds.has(lesson.videoId);
-            const watchedUntilEnd = watchedUntilEndLessonIds.has(lesson.videoId);
+            const lessonId = getLessonProgressId(courseSlug, lesson);
+            const active = lessonId === selectedId;
+            const completed = completedLessonIds.has(lessonId);
+            const watchedUntilEnd = watchedUntilEndLessonIds.has(lessonId);
             return (
               <button
-                key={lesson.videoId}
+                key={lessonId}
                 type="button"
                 onClick={() => selectLesson(lesson)}
                 className={active

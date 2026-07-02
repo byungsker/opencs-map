@@ -17,6 +17,10 @@ export type CourseProgressSummary = {
 
 type LessonProgressMap = Record<string, LessonProgressState>;
 
+export function getLessonProgressId(courseSlug: string, lesson: CourseLesson) {
+  return lesson.videoId ?? `${courseSlug}:${lesson.order}`;
+}
+
 const emptyState = (): LessonProgressState => ({
   completedLessonIds: [],
   watchedUntilEndLessonIds: [],
@@ -99,7 +103,7 @@ export function setLastWatchedLesson(courseSlug: string, videoId: string) {
 
 export function getLastWatchedLesson(courseSlug: string, lessons: CourseLesson[]) {
   const { lastWatchedVideoId } = getStoredLessonProgress(courseSlug);
-  return lessons.find((lesson) => lesson.videoId === lastWatchedVideoId) ?? lessons[0] ?? null;
+  return lessons.find((lesson) => getLessonProgressId(courseSlug, lesson) === lastWatchedVideoId) ?? lessons[0] ?? null;
 }
 
 export function setLessonNote(courseSlug: string, videoId: string, note: string) {
@@ -118,7 +122,7 @@ export function getLessonNote(courseSlug: string, videoId: string) {
 
 export function getCourseProgressSummary(courseSlug: string, lessons: CourseLesson[]): CourseProgressSummary {
   const completed = new Set(getStoredLessonProgress(courseSlug).completedLessonIds);
-  const completedCount = lessons.filter((lesson) => completed.has(lesson.videoId)).length;
+  const completedCount = lessons.filter((lesson) => completed.has(getLessonProgressId(courseSlug, lesson))).length;
   const totalCount = lessons.length;
 
   return {
