@@ -4,6 +4,7 @@ const STORAGE_KEY = "opencs-map-lesson-progress";
 
 export type LessonProgressState = {
   completedLessonIds: string[];
+  watchedUntilEndLessonIds: string[];
   lastWatchedVideoId?: string;
   notesByVideoId: Record<string, string>;
 };
@@ -18,6 +19,7 @@ type LessonProgressMap = Record<string, LessonProgressState>;
 
 const emptyState = (): LessonProgressState => ({
   completedLessonIds: [],
+  watchedUntilEndLessonIds: [],
   notesByVideoId: {},
 });
 
@@ -43,6 +45,7 @@ export function getStoredLessonProgress(courseSlug: string): LessonProgressState
   const state = readLessonProgressMap()[courseSlug];
   return {
     completedLessonIds: Array.isArray(state?.completedLessonIds) ? state.completedLessonIds : [],
+    watchedUntilEndLessonIds: Array.isArray(state?.watchedUntilEndLessonIds) ? state.watchedUntilEndLessonIds : [],
     lastWatchedVideoId: state?.lastWatchedVideoId,
     notesByVideoId: state?.notesByVideoId && typeof state.notesByVideoId === "object" ? state.notesByVideoId : {},
   };
@@ -67,6 +70,22 @@ export function setLessonCompleted(courseSlug: string, videoId: string, complete
     return {
       ...state,
       completedLessonIds: [...completedSet],
+    };
+  });
+}
+
+export function setLessonWatchedUntilEnd(courseSlug: string, videoId: string, watchedUntilEnd: boolean) {
+  return updateCourseState(courseSlug, (state) => {
+    const watchedSet = new Set(state.watchedUntilEndLessonIds);
+    if (watchedUntilEnd) {
+      watchedSet.add(videoId);
+    } else {
+      watchedSet.delete(videoId);
+    }
+
+    return {
+      ...state,
+      watchedUntilEndLessonIds: [...watchedSet],
     };
   });
 }

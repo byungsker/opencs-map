@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CourseLesson } from "@/data/lessons";
 import {
   getLastWatchedLesson,
@@ -9,13 +9,24 @@ import {
   setLastWatchedLesson,
   setLessonCompleted,
   setLessonNote,
+  setLessonWatchedUntilEnd,
 } from "@/lib/lesson-progress";
+
+function safeParseYouTubeMessage(data: string) {
+  try {
+    return JSON.parse(data) as { event?: string; info?: number };
+  } catch {
+    return null;
+  }
+}
 
 export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lessons: CourseLesson[]; courseSlug?: string }) {
   const initialLesson = getLastWatchedLesson(courseSlug, lessons) ?? lessons[0];
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selected, setSelected] = useState(initialLesson);
   const [progress, setProgress] = useState(() => getStoredLessonProgress(courseSlug));
   const [note, setNote] = useState(() => (initialLesson ? getLessonNote(courseSlug, initialLesson.videoId) : ""));
+  const [completionPrompt, setCompletionPrompt] = useState<"manual" | "watched-until-end" | null>(null);
 
   const progressSummary = useMemo(() => {
     const completed = new Set(progress.completedLessonIds);
@@ -29,20 +40,70 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
     };
   }, [lessons, progress.completedLessonIds]);
   const completedLessonIds = useMemo(() => new Set(progress.completedLessonIds), [progress.completedLessonIds]);
+  const watchedUntilEndLessonIds = useMemo(
+    () => new Set(progress.watchedUntilEndLessonIds),
+    [progress.watchedUntilEndLessonIds]
+  );
+
+  useEffect(() => {
+    const handleYouTubeMessage = (event: MessageEvent) => {
+      if (!event.origin.includes("youtube.com") || !selected) return;
+
+      const data = typeof event.data === "string" ? safeParseYouTubeMessage(event.data) : event.data;
+      if (data?.event !== "onStateChange" || data.info !== 0) return;
+      if (completedLessonIds.has(selected.videoId)) return;
+
+      setLessonWatchedUntilEnd(courseSlug, selected.videoId, true);
+      setProgress(getStoredLessonProgress(courseSlug));
+      setCompletionPrompt("watched-until-end");
+    };
+
+    window.addEventListener("message", handleYouTubeMessage);
+    return () => window.removeEventListener("message", handleYouTubeMessage);
+  }, [completedLessonIds, courseSlug, selected]);
+
+  const registerYouTubeStateListener = () => {
+    iframeRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }),
+      "https://www.youtube.com"
+    );
+  };
 
   if (!selected) return null;
 
   const selectLesson = (lesson: CourseLesson) => {
     setSelected(lesson);
+    setCompletionPrompt(null);
     setLastWatchedLesson(courseSlug, lesson.videoId);
     setProgress(getStoredLessonProgress(courseSlug));
     setNote(getLessonNote(courseSlug, lesson.videoId));
   };
 
-  const toggleCompleted = () => {
-    const nextCompleted = !completedLessonIds.has(selected.videoId);
-    setLessonCompleted(courseSlug, selected.videoId, nextCompleted);
+  const selectedIndex = lessons.findIndex((lesson) => lesson.videoId === selected.videoId);
+  const nextLesson = selectedIndex >= 0 ? lessons[selectedIndex + 1] : undefined;
+
+  const openCompletionPrompt = () => {
+    if (completedLessonIds.has(selected.videoId)) {
+      setLessonCompleted(courseSlug, selected.videoId, false);
+      setProgress(getStoredLessonProgress(courseSlug));
+      return;
+    }
+
+    setCompletionPrompt("manual");
+  };
+
+  const completeSelectedLesson = (moveNext: boolean) => {
+    setLessonCompleted(courseSlug, selected.videoId, true);
     setProgress(getStoredLessonProgress(courseSlug));
+    setCompletionPrompt(null);
+
+    if (moveNext && nextLesson) {
+      selectLesson(nextLesson);
+    }
+  };
+
+  const closeCompletionPrompt = () => {
+    setCompletionPrompt(null);
   };
 
   const updateNote = (value: string) => {
@@ -72,12 +133,14 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
         <div className="overflow-hidden rounded-3xl bg-slate-950 shadow-inner">
           <div className="relative aspect-video">
             <iframe
+              ref={iframeRef}
               key={selected.videoId}
               className="h-full w-full"
               src={selected.embedUrl}
               title={selected.title}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
+              onLoad={registerYouTubeStateListener}
             />
           </div>
         </div>
@@ -115,7 +178,7 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
 
           <button
             type="button"
-            onClick={toggleCompleted}
+            onClick={openCompletionPrompt}
             className={selectedCompleted
               ? "mt-4 w-full rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700"
               : "mt-4 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-sm"}
@@ -140,6 +203,7 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
           {lessons.map((lesson) => {
             const active = lesson.videoId === selected.videoId;
             const completed = completedLessonIds.has(lesson.videoId);
+            const watchedUntilEnd = watchedUntilEndLessonIds.has(lesson.videoId);
             return (
               <button
                 key={lesson.videoId}
@@ -154,6 +218,11 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
                 <span className={completed ? "mt-2 inline-flex rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-black text-emerald-700" : "mt-2 inline-flex rounded-full bg-slate-100 px-2 py-1 text-[11px] font-black text-slate-500"}>
                   {completed ? "완료" : "미완료"}
                 </span>
+                {watchedUntilEnd && !completed ? (
+                  <span className="ml-2 mt-2 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[11px] font-black text-amber-700">
+                    끝까지 시청
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -175,6 +244,58 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
           />
         </div>
       </div>
+
+      {completionPrompt ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 px-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="강의 완료 확인"
+            className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl"
+          >
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-blue-700">강의 완료 확인</p>
+            <h3 className="mt-3 text-2xl font-black text-slate-950">강의를 완료 처리할까요?</h3>
+            {completionPrompt === "watched-until-end" ? (
+              <>
+                <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">끝까지 시청한 강의예요.</p>
+                <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">
+                  완료 처리한 뒤 다음 강의로 넘어갈까요?
+                </p>
+              </>
+            ) : (
+              <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
+                완료 버튼을 눌렀어요. 완료 처리한 뒤 다음 강의로 넘어갈까요?
+              </p>
+            )}
+            <p className="mt-3 rounded-2xl bg-slate-50 p-3 text-sm font-bold text-slate-700">{selected.title}</p>
+            <div className="mt-5 grid gap-2">
+              {nextLesson ? (
+                <button
+                  type="button"
+                  onClick={() => completeSelectedLesson(true)}
+                  className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-sm"
+                >
+                  완료하고 다음 강의 보기
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => completeSelectedLesson(false)}
+                className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700"
+              >
+                완료만 하기
+              </button>
+              <button
+                type="button"
+                onClick={closeCompletionPrompt}
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-600"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

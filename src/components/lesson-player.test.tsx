@@ -3,8 +3,12 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LessonPlayer } from "@/components/lesson-player";
 import { getCourseLessons } from "@/lib/catalog";
+import { getStoredLessonProgress } from "@/lib/lesson-progress";
 
 describe("LessonPlayer", () => {
+  const courseSlug = "harvard-cs50x";
+  const lessons = getCourseLessons(courseSlug);
+
   beforeEach(() => {
     localStorage.clear();
   });
@@ -17,10 +21,12 @@ describe("LessonPlayer", () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
 
-    render(<LessonPlayer lessons={getCourseLessons("harvard-cs50x")} />);
+    render(<LessonPlayer lessons={lessons} courseSlug={courseSlug} />);
 
-    expect(screen.getByText("강의 시청" )).toBeInTheDocument();
-    expect(screen.getByText(/V1은 해외 유명 대학 강의를 한곳에서 고르고, 저장·학습 중·완료 상태로 관리하며 시청하는 데 집중합니다/)).toBeInTheDocument();
+    expect(screen.getByText("강의 시청")).toBeInTheDocument();
+    expect(
+      screen.getByText(/V1은 해외 유명 대학 강의를 한곳에서 고르고, 저장·학습 중·완료 상태로 관리하며 시청하는 데 집중합니다/)
+    ).toBeInTheDocument();
     expect(screen.getByText(/한글 자막과 transcript 기반 학습 레이어는 V2 계획으로 분리했습니다/)).toBeInTheDocument();
     expect(screen.getByText("학습관리")).toBeInTheDocument();
     expect(screen.getByText("코스 진행률")).toBeInTheDocument();
@@ -31,9 +37,7 @@ describe("LessonPlayer", () => {
   });
 
   it("shows course progress, the visible resume lesson, and lesson notes", () => {
-    const lessons = getCourseLessons("harvard-cs50x");
-
-    render(<LessonPlayer lessons={lessons} />);
+    render(<LessonPlayer lessons={lessons} courseSlug={courseSlug} />);
 
     expect(screen.getByText("코스 진행률")).toBeInTheDocument();
     expect(screen.getByText("0% 완료")).toBeInTheDocument();
@@ -43,6 +47,7 @@ describe("LessonPlayer", () => {
     expect(screen.getByLabelText("이어볼 위치: Week 1: C")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "이 강의 완료" }));
+    fireEvent.click(screen.getByRole("button", { name: "완료만 하기" }));
     expect(screen.getByText("9% 완료")).toBeInTheDocument();
     expect(screen.getByText("1 / 11강 완료")).toBeInTheDocument();
 
@@ -55,5 +60,38 @@ describe("LessonPlayer", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Week 1: C/ }));
     expect(screen.getByLabelText("선택한 강의 노트")).toHaveValue("C 포인터 전까지 복습");
+  });
+
+  it("asks for confirmation before completing a lesson from the complete button and can move to the next lesson", () => {
+    render(<LessonPlayer lessons={lessons} courseSlug={courseSlug} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "이 강의 완료" }));
+
+    expect(screen.getByRole("dialog", { name: "강의 완료 확인" })).toBeInTheDocument();
+    expect(screen.getByText("강의를 완료 처리할까요?")).toBeInTheDocument();
+    expect(getStoredLessonProgress(courseSlug).completedLessonIds).toEqual([]);
+
+    fireEvent.click(screen.getByRole("button", { name: "완료하고 다음 강의 보기" }));
+
+    expect(getStoredLessonProgress(courseSlug).completedLessonIds).toContain(lessons[0].videoId);
+    expect(screen.queryByRole("dialog", { name: "강의 완료 확인" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: lessons[1].title })).toBeInTheDocument();
+  });
+
+  it("stores that a lesson was watched until the end when the YouTube player emits an ended event", () => {
+    render(<LessonPlayer lessons={lessons} courseSlug={courseSlug} />);
+
+    fireEvent(
+      window,
+      new MessageEvent("message", {
+        origin: "https://www.youtube.com",
+        data: JSON.stringify({ event: "onStateChange", info: 0 }),
+      })
+    );
+
+    expect(getStoredLessonProgress(courseSlug).watchedUntilEndLessonIds).toContain(lessons[0].videoId);
+    expect(getStoredLessonProgress(courseSlug).completedLessonIds).toEqual([]);
+    expect(screen.getByRole("dialog", { name: "강의 완료 확인" })).toBeInTheDocument();
+    expect(screen.getByText("끝까지 시청한 강의예요."));
   });
 });

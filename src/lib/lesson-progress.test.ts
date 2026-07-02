@@ -7,6 +7,7 @@ import {
   setLastWatchedLesson,
   setLessonCompleted,
   setLessonNote,
+  setLessonWatchedUntilEnd,
 } from "@/lib/lesson-progress";
 import { getCourseLessons } from "@/lib/catalog";
 
@@ -39,6 +40,13 @@ describe("lesson-level learning progress", () => {
     setLessonNote(courseSlug, lessons[0].videoId, "Scratch 이벤트랑 반복문 복습하기");
 
     expect(getLessonNote(courseSlug, lessons[0].videoId)).toBe("Scratch 이벤트랑 반복문 복습하기");
+    expect(getStoredLessonProgress(courseSlug).completedLessonIds).toEqual([]);
+  });
+
+  it("tracks watched-until-end separately from explicit completion", () => {
+    setLessonWatchedUntilEnd(courseSlug, lessons[0].videoId, true);
+
+    expect(getStoredLessonProgress(courseSlug).watchedUntilEndLessonIds).toEqual([lessons[0].videoId]);
     expect(getStoredLessonProgress(courseSlug).completedLessonIds).toEqual([]);
   });
 });
