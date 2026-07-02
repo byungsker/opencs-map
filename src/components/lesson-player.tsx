@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { CourseLesson } from "@/data/lessons";
+import { getLessonStudyGuide } from "@/lib/lesson-study-guide";
 import {
   getLastWatchedLesson,
   getLessonNote,
@@ -113,6 +114,7 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
   };
 
   const selectedCompleted = completedLessonIds.has(selected.videoId);
+  const selectedStudyGuide = getLessonStudyGuide(selected.videoId);
 
   return (
     <section className="mt-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
@@ -228,20 +230,74 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
           })}
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <label htmlFor="lesson-note" className="text-sm font-black text-slate-950">
-            선택한 강의 노트
-          </label>
-          <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
-            {selected.title}를 보면서 남길 메모를 브라우저에 저장합니다.
-          </p>
-          <textarea
-            id="lesson-note"
-            value={note}
-            onChange={(event) => updateNote(event.target.value)}
-            placeholder="헷갈린 개념, 다시 볼 timestamp, 과제 메모를 적어두세요."
-            className="mt-3 min-h-40 w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-800 outline-none transition focus:border-blue-400 focus:bg-white"
-          />
+        <div className="grid gap-4">
+          <div className="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 shadow-sm">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-700">CS50 Study Guide</p>
+            {selectedStudyGuide ? (
+              <div className="mt-3">
+                <h3 className="text-xl font-black text-slate-950">{selectedStudyGuide.title}</h3>
+                <div className="mt-4 grid gap-4">
+                  <section>
+                    <h4 className="text-sm font-black text-slate-950">이번 강의에서 얻어야 할 것</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                      {selectedStudyGuide.outcomes.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </section>
+                  <section>
+                    <h4 className="text-sm font-black text-slate-950">핵심 개념</h4>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {selectedStudyGuide.keyConcepts.map((concept) => (
+                        <span key={concept} className="rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-700 shadow-sm">
+                          {concept}
+                        </span>
+                      ))}
+                    </div>
+                  </section>
+                  <section>
+                    <h4 className="text-sm font-black text-slate-950">비전공자 주의 포인트</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                      {selectedStudyGuide.confusingPoints.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </section>
+                  <section>
+                    <h4 className="text-sm font-black text-slate-950">다음 강의로 넘어가기 전 체크리스트</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                      {selectedStudyGuide.checklist.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </section>
+                  <section>
+                    <h4 className="text-sm font-black text-slate-950">다음 액션</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                      {selectedStudyGuide.nextActions.map((item) => <li key={item}>{item}</li>)}
+                    </ul>
+                  </section>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-3 rounded-2xl bg-white p-4 shadow-sm">
+                <h3 className="text-base font-black text-slate-950">이 강의의 학습 가이드는 준비 중이에요.</h3>
+                <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                  Week 0~2부터 검증한 뒤 확장합니다. 지금은 강의를 시청하고 노트에 헷갈린 지점을 남겨두세요.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <label htmlFor="lesson-note" className="text-sm font-black text-slate-950">
+              선택한 강의 노트
+            </label>
+            <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
+              {selected.title}를 보면서 남길 메모를 브라우저에 저장합니다.
+            </p>
+            <textarea
+              id="lesson-note"
+              value={note}
+              onChange={(event) => updateNote(event.target.value)}
+              placeholder="헷갈린 개념, 다시 볼 timestamp, 과제 메모를 적어두세요."
+              className="mt-3 min-h-40 w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-800 outline-none transition focus:border-blue-400 focus:bg-white"
+            />
+          </div>
         </div>
       </div>
 
