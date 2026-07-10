@@ -121,23 +121,24 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
   const selectedStudyGuide = selected.videoId ? getLessonStudyGuide(selected.videoId) : null;
 
   return (
-    <section className="mt-6 rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-sm">
-      <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+    <section className="mt-6 overflow-hidden rounded-[2.25rem] p-0 ocs-panel">
+      <div className="flex flex-col gap-4 border-b border-[var(--ocs-line)] bg-[var(--color-background-surface)] p-6 md:flex-row md:items-end md:justify-between md:p-8">
         <div>
-          <p className="text-sm font-bold text-blue-700">강의 시청</p>
-          <h2 className="mt-1 text-2xl font-black text-slate-950">{selected.title}</h2>
-          <p className="mt-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+          <p className="ocs-kicker">강의 시청</p>
+          <p className="mt-3 text-xs font-black uppercase tracking-[0.22em] text-[var(--color-text-tertiary)]">Lecture workspace</p>
+          <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] text-[var(--color-text-primary)] md:text-5xl">{selected.title}</h2>
+          <p className="mt-4 inline-flex rounded-full border border-[var(--ocs-line)] bg-[var(--color-background-muted)] px-3 py-1 text-xs font-black text-[var(--color-text-secondary)]">
             V1 학습관리 중심
           </p>
         </div>
-        <a href={selected.cs50Url ?? selected.sourceUrl} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-700">
+        <a href={selected.cs50Url ?? selected.sourceUrl} target="_blank" rel="noreferrer" className="rounded-full border border-[var(--ocs-line)] bg-[var(--color-background-muted)] px-4 py-2 text-sm font-black text-[var(--color-text-primary)] transition hover:border-[var(--ocs-accent)]">
           강의 자료 열기 →
         </a>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.7fr_1fr]">
-        <div className="overflow-hidden rounded-3xl bg-slate-950 shadow-inner">
-          <div className="relative aspect-video">
+      <div className="grid gap-px bg-[var(--ocs-line)] lg:grid-cols-[1.65fr_0.95fr]">
+        <div className="bg-[var(--ocs-ink)] p-3 md:p-5">
+          <div className="relative aspect-video overflow-hidden rounded-[1.75rem] shadow-2xl">
             {selected.embedUrl ? (
               <iframe
                 ref={iframeRef}
@@ -169,33 +170,33 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
           </div>
         </div>
 
-        <aside className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+        <aside className="bg-[var(--color-background-surface)] p-6 md:p-7">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700">코스 진행률</p>
-              <p className="mt-2 text-3xl font-black text-slate-950">{progressSummary.percentage}% 완료</p>
-              <p className="mt-1 text-sm font-bold text-slate-600">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[var(--color-text-tertiary)]">코스 진행률</p>
+              <p className="mt-3 text-5xl font-black tracking-[-0.06em] text-[var(--color-text-primary)]">{progressSummary.percentage}% 완료</p>
+              <p className="mt-1 text-sm font-bold text-[var(--color-text-secondary)]">
                 {progressSummary.completedCount} / {progressSummary.totalCount}강 완료
               </p>
             </div>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600 shadow-sm">
+            <span className="rounded-full border border-[var(--ocs-line)] bg-[var(--color-background-muted)] px-3 py-1 text-xs font-black text-[var(--color-text-secondary)]">
               V1
             </span>
           </div>
 
-          <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-200" aria-label="코스 진행률 바">
+          <div className="mt-6 h-4 overflow-hidden rounded-full bg-[var(--color-background-muted)] ring-1 ring-[var(--ocs-line)]" aria-label="코스 진행률 바">
             <div
-              className="h-full rounded-full bg-blue-600 transition-all"
+              className="h-full rounded-full bg-[var(--ocs-ink)] transition-all"
               style={{ width: `${progressSummary.percentage}%` }}
             />
           </div>
 
-          <div className="mt-4 rounded-2xl bg-white p-4 shadow-sm">
-            <p className="text-xs font-black text-slate-500">이어볼 위치</p>
-            <p className="mt-1 text-sm font-black text-slate-950" aria-label={`이어볼 위치: ${selected.title}`}>
+          <div className="mt-5 rounded-[1.5rem] border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-5">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--color-text-tertiary)]">이어볼 위치</p>
+            <p className="mt-2 text-base font-black text-[var(--color-text-primary)]" aria-label={`이어볼 위치: ${selected.title}`}>
               이어볼 위치: {selected.title}
             </p>
-            <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">
+            <p className="mt-2 text-xs font-semibold leading-5 text-[var(--color-text-secondary)]">
               마지막으로 누른 강의를 저장해 다음에 같은 위치에서 다시 시작할 수 있게 했습니다.
             </p>
           </div>
@@ -204,25 +205,26 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
             type="button"
             onClick={openCompletionPrompt}
             className={selectedCompleted
-              ? "mt-4 w-full rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700"
-              : "mt-4 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white shadow-sm"}
+              ? "mt-5 w-full rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700"
+              : "mt-5 w-full rounded-2xl bg-[var(--ocs-ink)] px-4 py-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.01]"}
           >
             {selectedCompleted ? "완료 취소" : "이 강의 완료"}
           </button>
         </aside>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/70 p-4">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700">학습관리</p>
-        <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+      <div className="m-6 rounded-[1.75rem] border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-5 md:m-8">
+        <p className="ocs-kicker">학습관리</p>
+        <p className="mt-3 text-xs font-black uppercase tracking-[0.22em] text-[var(--color-text-tertiary)]">Learning management</p>
+        <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
           V1은 해외 유명 대학 강의를 한곳에서 고르고, 저장·학습 중·완료 상태로 관리하며 시청하는 데 집중합니다.
         </p>
-        <p className="mt-2 text-sm font-semibold leading-6 text-slate-800">
+        <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
           한글 자막과 transcript 기반 학습 레이어는 V2 계획으로 분리했습니다.
         </p>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+      <div className="grid gap-5 p-6 pt-0 md:p-8 md:pt-0 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="grid gap-2 sm:grid-cols-2">
           {lessons.map((lesson) => {
             const lessonId = getLessonProgressId(courseSlug, lesson);
@@ -235,8 +237,8 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
                 type="button"
                 onClick={() => selectLesson(lesson)}
                 className={active
-                  ? "rounded-2xl bg-blue-600 px-4 py-3 text-left text-sm font-bold text-white shadow-sm"
-                  : "rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:border-blue-400 hover:text-blue-700"}
+                  ? "rounded-2xl bg-[var(--ocs-ink)] px-4 py-3 text-left text-sm font-bold text-white shadow-sm ring-2 ring-[var(--ocs-accent)]/20"
+                  : "rounded-2xl border border-[var(--ocs-line)] bg-[var(--color-background-surface)] px-4 py-3 text-left text-sm font-semibold text-[var(--color-text-secondary)] transition hover:border-[var(--ocs-accent)] hover:text-[var(--color-text-primary)]"}
               >
                 <span className="block text-xs opacity-70">{lesson.order}강</span>
                 <span className="block">{lesson.title}</span>
@@ -254,43 +256,43 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
         </div>
 
         <div className="grid gap-4">
-          <div className="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5 shadow-sm">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-indigo-700">CS50 Study Guide</p>
+          <div className="rounded-[1.75rem] border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-5 shadow-sm">
+            <p className="ocs-kicker">CS50 Study Guide</p>
             {selectedStudyGuide ? (
               <div className="mt-3">
-                <h3 className="text-xl font-black text-slate-950">{selectedStudyGuide.title}</h3>
+                <h3 className="text-2xl font-black tracking-tight text-[var(--color-text-primary)]">{selectedStudyGuide.title}</h3>
                 <div className="mt-4 grid gap-4">
                   <section>
-                    <h4 className="text-sm font-black text-slate-950">이번 강의에서 얻어야 할 것</h4>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                    <h4 className="text-sm font-black text-[var(--color-text-primary)]">이번 강의에서 얻어야 할 것</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
                       {selectedStudyGuide.outcomes.map((item) => <li key={item}>{item}</li>)}
                     </ul>
                   </section>
                   <section>
-                    <h4 className="text-sm font-black text-slate-950">핵심 개념</h4>
+                    <h4 className="text-sm font-black text-[var(--color-text-primary)]">핵심 개념</h4>
                     <div className="mt-2 flex flex-wrap gap-2">
                       {selectedStudyGuide.keyConcepts.map((concept) => (
-                        <span key={concept} className="rounded-full bg-white px-3 py-1 text-xs font-black text-indigo-700 shadow-sm">
+                        <span key={concept} className="rounded-full border border-[var(--ocs-line)] bg-[var(--color-background-surface)] px-3 py-1 text-xs font-black text-[var(--color-text-secondary)] shadow-sm">
                           {concept}
                         </span>
                       ))}
                     </div>
                   </section>
                   <section>
-                    <h4 className="text-sm font-black text-slate-950">비전공자 주의 포인트</h4>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                    <h4 className="text-sm font-black text-[var(--color-text-primary)]">비전공자 주의 포인트</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
                       {selectedStudyGuide.confusingPoints.map((item) => <li key={item}>{item}</li>)}
                     </ul>
                   </section>
                   <section>
-                    <h4 className="text-sm font-black text-slate-950">다음 강의로 넘어가기 전 체크리스트</h4>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                    <h4 className="text-sm font-black text-[var(--color-text-primary)]">다음 강의로 넘어가기 전 체크리스트</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
                       {selectedStudyGuide.checklist.map((item) => <li key={item}>{item}</li>)}
                     </ul>
                   </section>
                   <section>
-                    <h4 className="text-sm font-black text-slate-950">다음 액션</h4>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-slate-700">
+                    <h4 className="text-sm font-black text-[var(--color-text-primary)]">다음 액션</h4>
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
                       {selectedStudyGuide.nextActions.map((item) => <li key={item}>{item}</li>)}
                     </ul>
                   </section>
@@ -306,11 +308,11 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
             )}
           </div>
 
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-            <label htmlFor="lesson-note" className="text-sm font-black text-slate-950">
+          <div className="rounded-[1.75rem] border border-[var(--ocs-line)] bg-[var(--color-background-surface)] p-5 shadow-sm">
+            <label htmlFor="lesson-note" className="text-sm font-black text-[var(--color-text-primary)]">
               선택한 강의 노트
             </label>
-            <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">
+            <p className="mt-1 text-xs font-semibold leading-5 text-[var(--color-text-secondary)]">
               {selected.title}를 보면서 남길 메모를 브라우저에 저장합니다.
             </p>
             <textarea
@@ -318,7 +320,7 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
               value={note}
               onChange={(event) => updateNote(event.target.value)}
               placeholder="헷갈린 개념, 다시 볼 timestamp, 과제 메모를 적어두세요."
-              className="mt-3 min-h-40 w-full rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold leading-6 text-slate-800 outline-none transition focus:border-blue-400 focus:bg-white"
+              className="mt-3 min-h-40 w-full rounded-2xl border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-4 text-sm font-semibold leading-6 text-[var(--color-text-primary)] outline-none transition focus:border-[var(--ocs-accent)] focus:bg-[var(--color-background-surface)]"
             />
           </div>
         </div>

@@ -8,13 +8,19 @@ export function generateStaticParams() {
   return roadmaps.map((roadmap) => ({ slug: roadmap.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const roadmap = roadmaps.find((item) => item.slug === params.slug);
+type RoadmapPageProps = {
+  params: Promise<{ slug: string }>;
+};
+
+export async function generateMetadata({ params }: RoadmapPageProps) {
+  const { slug } = await params;
+  const roadmap = roadmaps.find((item) => item.slug === slug);
   return { title: roadmap ? `${roadmap.title} | OpenCS Map` : "Roadmap | OpenCS Map" };
 }
 
-export default function RoadmapDetailPage({ params }: { params: { slug: string } }) {
-  const roadmap = roadmaps.find((item) => item.slug === params.slug);
+export default async function RoadmapDetailPage({ params }: RoadmapPageProps) {
+  const { slug } = await params;
+  const roadmap = roadmaps.find((item) => item.slug === slug);
   if (!roadmap) notFound();
   const steps = getRoadmapCourses(roadmap);
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Button } from "@astryxdesign/core/Button";
 import { getStoredProgress, toggleStoredProgress, type ProgressStatus } from "@/lib/progress";
 
 const labels: Record<ProgressStatus, string> = {
@@ -19,14 +20,11 @@ export function ProgressButton({ slug, status }: { slug: string; status: Progres
   const active = current === status;
 
   return (
-    <button
-      type="button"
+    <Button
+      label={labels[status]}
+      variant={active ? "primary" : "secondary"}
+      size="md"
       onClick={() => setCurrent(toggleStoredProgress(slug, status))}
-      className={active
-        ? "rounded-full bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm"
-        : "rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-400 hover:text-blue-700"}
-    >
-      {labels[status]}
-    </button>
+    />
   );
 }

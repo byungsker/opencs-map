@@ -21,12 +21,6 @@ export function getLessonProgressId(courseSlug: string, lesson: CourseLesson) {
   return lesson.videoId ?? `${courseSlug}:${lesson.order}`;
 }
 
-const emptyState = (): LessonProgressState => ({
-  completedLessonIds: [],
-  watchedUntilEndLessonIds: [],
-  notesByVideoId: {},
-});
-
 function readLessonProgressMap(): LessonProgressMap {
   if (typeof window === "undefined") return {};
   const raw = window.localStorage.getItem(STORAGE_KEY);
