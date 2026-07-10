@@ -24,16 +24,30 @@ describe("LessonPlayer", () => {
     render(<LessonPlayer lessons={lessons} courseSlug={courseSlug} />);
 
     expect(screen.getByText("강의 시청")).toBeInTheDocument();
-    expect(
-      screen.getByText(/V1은 해외 유명 대학 강의를 한곳에서 고르고, 저장·학습 중·완료 상태로 관리하며 시청하는 데 집중합니다/)
-    ).toBeInTheDocument();
-    expect(screen.getByText(/한글 자막과 transcript 기반 학습 레이어는 V2 계획으로 분리했습니다/)).toBeInTheDocument();
+    expect(screen.getByText(/강의를 선택하고 시청 상태를 관리하세요/)).toBeInTheDocument();
+    expect(screen.getByText(/한글 자막과 transcript 학습 레이어는 V2에서 다룹니다/)).toBeInTheDocument();
     expect(screen.getByText("학습관리")).toBeInTheDocument();
     expect(screen.getByText("코스 진행률")).toBeInTheDocument();
     expect(screen.getByText("선택한 강의 노트")).toBeInTheDocument();
     expect(screen.queryByText(/Custom Korean captions/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/학습 자막 초안/)).not.toBeInTheDocument();
     expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("reserves stable viewport space for the player and keeps the study guide sticky", () => {
+    render(<LessonPlayer lessons={lessons} courseSlug={courseSlug} />);
+
+    expect(screen.getByTestId("lesson-video-frame")).toHaveClass("aspect-video", "min-h-[260px]");
+    expect(screen.getByTestId("lesson-workspace-grid")).toHaveClass("lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.75fr)]");
+    expect(screen.getByTestId("study-guide-panel")).toHaveClass("lg:sticky", "lg:top-6", "lg:max-h-[calc(100dvh-3rem)]", "lg:overflow-auto");
+  });
+
+  it("keeps the learning management guidance compact and action-oriented", () => {
+    render(<LessonPlayer lessons={lessons} courseSlug={courseSlug} />);
+
+    expect(screen.getByText("학습관리").closest(".ocs-learning-notice")).not.toBeNull();
+    expect(screen.getByText(/강의를 선택하고 시청 상태를 관리하세요/)).toBeInTheDocument();
+    expect(screen.queryByText(/V1은 해외 유명 대학 강의를 한곳에서 고르고/)).not.toBeInTheDocument();
   });
 
   it("shows course progress, the visible resume lesson, and lesson notes", () => {

@@ -121,14 +121,14 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
   const selectedStudyGuide = selected.videoId ? getLessonStudyGuide(selected.videoId) : null;
 
   return (
-    <section className="mt-6 overflow-hidden rounded-[2.25rem] p-0 ocs-panel">
-      <div className="flex flex-col gap-4 border-b border-[var(--ocs-line)] bg-[var(--color-background-surface)] p-6 md:flex-row md:items-end md:justify-between md:p-8">
+    <section className="mt-6 overflow-hidden rounded-[2rem] p-0 ocs-panel">
+      <div className="flex flex-col gap-4 border-b border-[var(--ocs-line)] bg-[var(--color-background-surface)] p-5 md:flex-row md:items-end md:justify-between md:p-6">
         <div>
           <p className="ocs-kicker">강의 시청</p>
-          <p className="mt-3 text-xs font-black uppercase tracking-[0.22em] text-[var(--color-text-tertiary)]">Lecture workspace</p>
-          <h2 className="mt-4 text-4xl font-black tracking-[-0.04em] text-[var(--color-text-primary)] md:text-5xl">{selected.title}</h2>
-          <p className="mt-4 inline-flex rounded-full border border-[var(--ocs-line)] bg-[var(--color-background-muted)] px-3 py-1 text-xs font-black text-[var(--color-text-secondary)]">
-            V1 학습관리 중심
+          <p className="mt-3 text-[11px] font-black uppercase tracking-[0.14em] text-[var(--color-text-tertiary)]">Lecture workspace</p>
+          <h2 className="mt-3 text-3xl font-black tracking-[-0.035em] text-[var(--color-text-primary)] md:text-4xl">{selected.title}</h2>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
+            현재 선택한 강의를 보고, 바로 아래 목록에서 다음 학습 위치를 바꿀 수 있습니다.
           </p>
         </div>
         <a href={selected.cs50Url ?? selected.sourceUrl} target="_blank" rel="noreferrer" className="rounded-full border border-[var(--ocs-line)] bg-[var(--color-background-muted)] px-4 py-2 text-sm font-black text-[var(--color-text-primary)] transition hover:border-[var(--ocs-accent)]">
@@ -136,14 +136,14 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
         </a>
       </div>
 
-      <div className="grid gap-px bg-[var(--ocs-line)] lg:grid-cols-[1.65fr_0.95fr]">
-        <div className="bg-[var(--ocs-ink)] p-3 md:p-5">
-          <div className="relative aspect-video overflow-hidden rounded-[1.75rem] shadow-2xl">
+      <div data-testid="lesson-workspace-grid" className="grid gap-px bg-[var(--ocs-line)] lg:grid-cols-[minmax(0,1.55fr)_minmax(320px,0.75fr)]">
+        <div className="bg-[var(--ocs-ink)] p-3 md:p-4">
+          <div data-testid="lesson-video-frame" className="relative aspect-video min-h-[260px] max-h-[560px] overflow-hidden rounded-[1.5rem] bg-slate-950 shadow-xl">
             {selected.embedUrl ? (
               <iframe
                 ref={iframeRef}
                 key={selectedId}
-                className="h-full w-full"
+                className="absolute inset-0 h-full w-full"
                 src={selected.embedUrl}
                 title={selected.title}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -201,31 +201,24 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={openCompletionPrompt}
-            className={selectedCompleted
-              ? "mt-5 w-full rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-black text-emerald-700"
-              : "mt-5 w-full rounded-2xl bg-[var(--ocs-ink)] px-4 py-3 text-sm font-black text-white shadow-sm transition hover:scale-[1.01]"}
-          >
-            {selectedCompleted ? "완료 취소" : "이 강의 완료"}
-          </button>
+          <p className="mt-5 rounded-2xl border border-[var(--ocs-line)] bg-[var(--color-background-muted)] px-4 py-3 text-xs font-bold leading-5 text-[var(--color-text-secondary)]">
+            완료 처리는 아래 Study Guide 패널에서 현재 선택 강의와 함께 관리합니다.
+          </p>
         </aside>
       </div>
 
-      <div className="m-6 rounded-[1.75rem] border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-5 md:m-8">
-        <p className="ocs-kicker">학습관리</p>
-        <p className="mt-3 text-xs font-black uppercase tracking-[0.22em] text-[var(--color-text-tertiary)]">Learning management</p>
-        <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
-          V1은 해외 유명 대학 강의를 한곳에서 고르고, 저장·학습 중·완료 상태로 관리하며 시청하는 데 집중합니다.
-        </p>
-        <p className="mt-2 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
-          한글 자막과 transcript 기반 학습 레이어는 V2 계획으로 분리했습니다.
+      <div className="ocs-learning-notice m-5 flex flex-col gap-2 rounded-[1.25rem] border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-4 md:m-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <p className="ocs-kicker">학습관리</p>
+          <p className="mt-2 text-sm font-black text-[var(--color-text-primary)]">강의를 선택하고 시청 상태를 관리하세요.</p>
+        </div>
+        <p className="max-w-xl text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
+          한글 자막과 transcript 학습 레이어는 V2에서 다룹니다. 지금은 저장, 학습 중, 완료, 노트에 집중합니다.
         </p>
       </div>
 
-      <div className="grid gap-5 p-6 pt-0 md:p-8 md:pt-0 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-5 p-5 pt-0 md:p-6 md:pt-0 lg:grid-cols-[minmax(0,1fr)_minmax(360px,480px)]">
+        <div className="grid content-start gap-2 sm:grid-cols-2">
           {lessons.map((lesson) => {
             const lessonId = getLessonProgressId(courseSlug, lesson);
             const active = lessonId === selectedId;
@@ -237,8 +230,8 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
                 type="button"
                 onClick={() => selectLesson(lesson)}
                 className={active
-                  ? "rounded-2xl bg-[var(--ocs-ink)] px-4 py-3 text-left text-sm font-bold text-white shadow-sm ring-2 ring-[var(--ocs-accent)]/20"
-                  : "rounded-2xl border border-[var(--ocs-line)] bg-[var(--color-background-surface)] px-4 py-3 text-left text-sm font-semibold text-[var(--color-text-secondary)] transition hover:border-[var(--ocs-accent)] hover:text-[var(--color-text-primary)]"}
+                  ? "min-h-[92px] rounded-xl bg-[var(--ocs-ink)] px-4 py-3 text-left text-sm font-bold text-white shadow-sm ring-2 ring-[var(--ocs-accent)]/25"
+                  : "min-h-[92px] rounded-xl border border-[var(--ocs-line)] bg-[var(--color-background-surface)] px-4 py-3 text-left text-sm font-semibold text-[var(--color-text-secondary)] transition hover:border-[var(--ocs-accent)] hover:text-[var(--color-text-primary)]"}
               >
                 <span className="block text-xs opacity-70">{lesson.order}강</span>
                 <span className="block">{lesson.title}</span>
@@ -255,13 +248,28 @@ export function LessonPlayer({ lessons, courseSlug = "harvard-cs50x" }: { lesson
           })}
         </div>
 
-        <div className="grid gap-4">
-          <div className="rounded-[1.75rem] border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-5 shadow-sm">
+        <div data-testid="study-guide-panel" className="grid content-start gap-4 lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-auto">
+          <div className="rounded-[1.5rem] border border-[var(--ocs-line)] bg-[var(--color-background-muted)] p-5 shadow-sm">
+            <div className="mb-4 flex flex-col gap-3 border-b border-[var(--ocs-line)] pb-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-black text-[var(--color-text-secondary)]">현재 선택</p>
+                <p className="mt-1 text-lg font-black tracking-[-0.02em] text-[var(--color-text-primary)]">{selected.title}</p>
+              </div>
+              <button
+                type="button"
+                onClick={openCompletionPrompt}
+                className={selectedCompleted
+                  ? "rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-black text-emerald-700"
+                  : "rounded-xl bg-[var(--ocs-ink)] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:scale-[1.01]"}
+              >
+                {selectedCompleted ? "완료 취소" : "이 강의 완료"}
+              </button>
+            </div>
             <p className="ocs-kicker">CS50 Study Guide</p>
             {selectedStudyGuide ? (
               <div className="mt-3">
-                <h3 className="text-2xl font-black tracking-tight text-[var(--color-text-primary)]">{selectedStudyGuide.title}</h3>
-                <div className="mt-4 grid gap-4">
+                <h3 className="text-xl font-black tracking-tight text-[var(--color-text-primary)]">{selectedStudyGuide.title}</h3>
+                <div className="mt-4 grid gap-3">
                   <section>
                     <h4 className="text-sm font-black text-[var(--color-text-primary)]">이번 강의에서 얻어야 할 것</h4>
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-sm font-semibold leading-6 text-[var(--color-text-secondary)]">
